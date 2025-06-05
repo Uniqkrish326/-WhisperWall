@@ -33,7 +33,7 @@
       padding: 20px;
       margin-bottom: 20px;
     }
-    textarea, #searchInput {
+    textarea {
       width: 100%;
       padding: 12px;
       background: rgba(255,255,255,0.07);
@@ -43,7 +43,7 @@
       resize: vertical;
       font-size: 1rem;
     }
-    textarea:focus, #searchInput:focus {
+    textarea:focus {
       outline: none;
       border-color: #00ffff;
       box-shadow: 0 0 8px #00ffff99;
@@ -72,7 +72,7 @@
       color: #66ffff;
       margin-top: 8px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
     }
     .delete-btn {
       border: 1px solid #00ffffaa;
@@ -96,7 +96,6 @@
       </ul>
     </div>
 
-   
     <textarea id="postInput" placeholder="Write something..." minlength="3" maxlength="5000"></textarea>
     <button id="postBtn">Post</button>
 
@@ -131,19 +130,18 @@
       });
     }
 
-    async function renderPosts(filter = '') {
+    async function renderPosts() {
       const container = document.getElementById('postsContainer');
       container.innerHTML = '<p style="color:#777; text-align:center;">Loading...</p>';
       const posts = await fetchPosts();
-      const filtered = posts.filter(p => p.text.toLowerCase().includes(filter.toLowerCase()));
 
       container.innerHTML = '';
-      if (filtered.length === 0) {
+      if (posts.length === 0) {
         container.innerHTML = '<p style="color:#555; text-align:center;">No posts found.</p>';
         return;
       }
 
-      filtered.forEach(post => {
+      posts.forEach(post => {
         const div = document.createElement('div');
         div.className = 'post-preview';
 
@@ -153,7 +151,6 @@
 
         const meta = document.createElement('div');
         meta.className = 'post-meta';
-        meta.innerHTML = `<span>${new Date(post.date).toLocaleString()}</span>`;
 
         if (post.ownerId === userId) {
           const del = document.createElement('button');
@@ -165,7 +162,7 @@
             const allPosts = await fetchPosts();
             const updated = allPosts.filter(p => p.id !== post.id);
             await savePosts(updated);
-            renderPosts(document.getElementById('searchInput').value);
+            renderPosts();
           };
           meta.appendChild(del);
         }
@@ -195,11 +192,7 @@
       input.value = '';
       input.disabled = false;
       document.getElementById('postBtn').disabled = false;
-      renderPosts(document.getElementById('searchInput').value);
-    });
-
-    document.getElementById('searchInput').addEventListener('input', e => {
-      renderPosts(e.target.value);
+      renderPosts();
     });
 
     renderPosts();
